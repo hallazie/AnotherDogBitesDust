@@ -1,7 +1,7 @@
 /*
  * @Author: Xiao Shanghua
  * @Date: 2020-10-11 19:19:02
- * @LastEditTime: 2020-10-15 00:45:59
+ * @LastEditTime: 2020-10-20 23:15:07
  * @LastEditors: Xiao Shanghua
  * @Description: 
  * @FilePath: \Battery_Collector\Source\Battery_Collector\BatteryMan.h
@@ -44,6 +44,28 @@ public:
 
 	bool bDead;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float Power;
+
+	UPROPERTY(EditAnywhere)
+	float Power_Threshold;
+
+	UFUNCTION()
+	void OnBeginOverlap(
+		class UPrimitiveComponent* HitComp, 
+		class AActor* OtherActor,
+		class UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult & SweepResult
+		);
+
+	UPROPERTY(EditAnywhere, Category="UI HUD")
+	TSubclassOf<UUserWidget> Player_Power_Widget_Class;
+
+	UUserWidget* Player_Power_Widget;
+
+	void RestartGame();
 
 protected:
 	// Called when the game starts or when spawned
