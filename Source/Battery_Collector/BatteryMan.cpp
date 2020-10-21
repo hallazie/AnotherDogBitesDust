@@ -1,7 +1,7 @@
 /*
  * @Author: Xiao Shanghua
  * @Date: 2020-10-11 19:19:02
- * @LastEditTime: 2020-10-20 23:14:49
+ * @LastEditTime: 2020-10-22 02:16:06
  * @LastEditors: Xiao Shanghua
  * @Description: 
  * @FilePath: \Battery_Collector\Source\Battery_Collector\BatteryMan.cpp
@@ -42,7 +42,7 @@ ABatteryMan::ABatteryMan()
 	
 	bDead = false;
 	Power = 100.0f;
-	Power_Threshold = 20.0f;
+	Power_Threshold = 3.0f;
 
 }
 
