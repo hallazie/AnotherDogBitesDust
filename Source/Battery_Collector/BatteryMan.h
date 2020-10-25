@@ -1,7 +1,7 @@
 /*
  * @Author: Xiao Shanghua
  * @Date: 2020-10-11 19:19:02
- * @LastEditTime: 2020-10-20 23:15:07
+ * @LastEditTime: 2020-10-25 16:41:14
  * @LastEditors: Xiao Shanghua
  * @Description: 
  * @FilePath: \Battery_Collector\Source\Battery_Collector\BatteryMan.h
@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "string.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
@@ -34,38 +35,70 @@ public:
 	ABatteryMan();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
-	USpringArmComponent* CameraBoom;
+		USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
-	UCameraComponent* FollowCamera;
+		UCameraComponent* FollowCamera;
 
 	void MoveForward(float Axis);
 	void MoveRight(float Axis);
 
 	bool bDead;
+	bool bAttacking;
+	bool bDancing;
+
+	// String movingStatus; // run / sprint / idle
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float Power;
+		float DefaultMaxWalkSpeed;
 
-	UPROPERTY(EditAnywhere)
-	float Power_Threshold;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character Movement")
+		float SprintMultiplier;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		float Power;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		float Power_Threshold;
+
+	//UPROPERTY(VisibleAnywhere, Category="Animation")
+	//	class UAnimSequence* MeleeFistAttack; 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Animation")
+		class UAnimMontage* MeleeFistAttackMontage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		class UAnimMontage* DanceMontage;
+
 
 	UFUNCTION()
-	void OnBeginOverlap(
-		class UPrimitiveComponent* HitComp, 
-		class AActor* OtherActor,
-		class UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult & SweepResult
-		);
+		void OnBeginOverlap(
+			class UPrimitiveComponent* HitComp, 
+			class AActor* OtherActor,
+			class UPrimitiveComponent* OtherComp,
+			int32 OtherBodyIndex,
+			bool bFromSweep,
+			const FHitResult & SweepResult
+			);
 
 	UPROPERTY(EditAnywhere, Category="UI HUD")
-	TSubclassOf<UUserWidget> Player_Power_Widget_Class;
+		TSubclassOf<UUserWidget> Player_Power_Widget_Class;
 
 	UUserWidget* Player_Power_Widget;
 
 	void RestartGame();
+
+	void ResumeMovingStatus();
+
+	void SprintHold();
+	void SprintStart();
+	void SprintStop();
+
+	void DanceStart();
+	void DanceStop();
+	void DanceLoop();
+	void AttackStart();
+	void AttackStop();
 
 protected:
 	// Called when the game starts or when spawned
