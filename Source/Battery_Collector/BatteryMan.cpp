@@ -8,7 +8,7 @@
  */
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include <string>
 #include "BatteryMan.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Actor.h"
@@ -171,11 +171,17 @@ void ABatteryMan::RestartGame(){
 }
 
 void ABatteryMan::SprintStart(){
-	GetCharacterMovement()->MaxWalkSpeed *= SprintMultiplier;
+	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed * SprintMultiplier;
+	if (bDancing) {
+		StopAnimMontage(DanceMontage);
+		bDancing = false;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("sprint start speed: %f"), GetCharacterMovement()->MaxWalkSpeed);
 }
 
 void ABatteryMan::SprintStop(){
-	GetCharacterMovement()->MaxWalkSpeed /= SprintMultiplier;
+	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
+	UE_LOG(LogTemp, Warning, TEXT("sprint stop speed: %f"), GetCharacterMovement()->MaxWalkSpeed);
 }
 
 void ABatteryMan::DanceStart(){
@@ -202,10 +208,12 @@ void ABatteryMan::DanceLoop() {
 	if (bDancing) {
 		bDancing = false;
 		GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
+		UE_LOG(LogTemp, Warning, TEXT("new max speed: %f"), GetCharacterMovement()->MaxWalkSpeed);
 		StopAnimMontage(DanceMontage);
 	}
 	else {
 		bDancing = true;
+		UE_LOG(LogTemp, Warning, TEXT("raw max speed: %f"), GetCharacterMovement()->MaxWalkSpeed);
 		GetCharacterMovement()->MaxWalkSpeed = 0.0f;
 		PlayAnimMontage(DanceMontage, 1.5f);
 	}
