@@ -46,6 +46,9 @@ public:
 	bool bDead;
 	bool bAttacking;
 	bool bDancing;
+	bool bInAir;
+
+	int ComboLoop;
 
 	// String movingStatus; // run / sprint / idle
 
@@ -55,7 +58,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character Movement")
 		float SprintMultiplier;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere)
 		float Power;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -70,6 +73,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		class UAnimMontage* DanceMontage;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		class UAnimMontage* CombatAttackMontage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		class UAnimMontage* JumpMontage;
 
 	UFUNCTION()
 		void OnBeginOverlap(
@@ -93,12 +101,13 @@ public:
 	void SprintHold();
 	void SprintStart();
 	void SprintStop();
-
 	void DanceStart();
 	void DanceStop();
 	void DanceLoop();
 	void AttackStart();
 	void AttackStop();
+	void JumpStart();
+	void JumpEnd();
 
 protected:
 	// Called when the game starts or when spawned

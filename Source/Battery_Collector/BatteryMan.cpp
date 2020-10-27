@@ -23,10 +23,13 @@ ABatteryMan::ABatteryMan()
 	bDead = false;
 	bAttacking = false;
 	bDancing = false;
+	bInAir = false;
+
 	Power = 100.0f;
 	DefaultMaxWalkSpeed = 600.0f;
 	Power_Threshold = 3.0f;
 	SprintMultiplier = 2.0f;
+	ComboLoop = 1;
 
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
 
@@ -61,6 +64,16 @@ ABatteryMan::ABatteryMan()
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> DanceMontageObject(TEXT("AnimMontage'/Game/Animation/SWAT/BPM_Dance.BPM_Dance'"));
 	if (DanceMontageObject.Succeeded()) {
 		DanceMontage = DanceMontageObject.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> CombatAttackMontageObject(TEXT("AnimMontage'/Game/Animation/SWAT/BPM_ComboFistAttack.BPM_ComboFistAttack'"));
+	if (CombatAttackMontageObject.Succeeded()) {
+		CombatAttackMontage = CombatAttackMontageObject.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> JumpMontageObject(TEXT("AnimMontage'/Game/Animation/SWAT/BPM_Jump.BPM_Jump'"));
+	if (JumpMontageObject.Succeeded()) {
+		JumpMontage = JumpMontageObject.Object;
 	}
 }
 
@@ -103,8 +116,10 @@ void ABatteryMan::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ABatteryMan::JumpStart);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ABatteryMan::JumpEnd);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABatteryMan::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABatteryMan::MoveRight);
 
@@ -195,8 +210,15 @@ void ABatteryMan::DanceStop() {
 
 void ABatteryMan::AttackStart(){
 	bAttacking = true;
-	GetCharacterMovement()->MaxWalkSpeed = 0.0f;
-	PlayAnimMontage(MeleeFistAttackMontage, 2.0f);
+	//GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+	FString MontageSection = "start_" + FString::FromInt(ComboLoop);
+	UE_LOG(LogTemp, Warning, TEXT("playing montage section: start_%d"), ComboLoop);
+	PlayAnimMontage(CombatAttackMontage, 2.0f, FName(MontageSection));
+	ComboLoop += 1;
+	if (ComboLoop > 3) {
+		ComboLoop = 1;
+	}
+
 }
 
 void ABatteryMan::AttackStop() {
@@ -217,4 +239,16 @@ void ABatteryMan::DanceLoop() {
 		GetCharacterMovement()->MaxWalkSpeed = 0.0f;
 		PlayAnimMontage(DanceMontage, 1.5f);
 	}
+}
+
+
+void ABatteryMan::JumpStart()
+{
+	bInAir = true;
+	PlayAnimMontage(JumpMontage, 1.0f, FName("jump_air"));
+	Super::Jump();
+}
+
+void ABatteryMan::JumpEnd() {
+
 }
