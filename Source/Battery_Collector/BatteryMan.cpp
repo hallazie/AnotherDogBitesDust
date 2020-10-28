@@ -51,6 +51,11 @@ ABatteryMan::ABatteryMan()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
+	LeftFistCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftFistCollesionBox"));
+	LeftFistCollisionBox->SetupAttachment(RootComponent);
+	RightFistCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightFistCollesionBox"));
+	RightFistCollisionBox->SetupAttachment(RootComponent);
+
 	//static ConstructorHelpers::FObjectFinder<UAnimSequence> MeleeFistAttackObject(TEXT("AnimSequence'/Game/Animation/SWAT/Hook_Punch.Hook_Punch'"));
 	//if(MeleeFistAttackObject.Succeeded()){
 	//	MeleeFistAttack = MeleeFistAttackObject.Object;
@@ -88,7 +93,13 @@ void ABatteryMan::BeginPlay()
 		Player_Power_Widget = CreateWidget(GetWorld(), Player_Power_Widget_Class);
 		Player_Power_Widget->AddToViewport();
 	}
-	
+
+	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
+	LeftFistCollisionBox->AttachToComponent(GetMesh(), AttachmentRules, "LeftFistCollision");
+	LeftFistCollisionBox->SetHiddenInGame(false);
+	RightFistCollisionBox->AttachToComponent(GetMesh(), AttachmentRules, "RightFistCollision");
+	RightFistCollisionBox->SetHiddenInGame(false);
+
 }
 
 // Called every frame

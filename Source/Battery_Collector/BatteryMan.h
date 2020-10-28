@@ -17,6 +17,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
@@ -78,6 +79,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		class UAnimMontage* JumpMontage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UBoxComponent* LeftFistCollisionBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UBoxComponent* RightFistCollisionBox;
 
 	UFUNCTION()
 		void OnBeginOverlap(
