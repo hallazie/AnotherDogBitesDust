@@ -97,8 +97,11 @@ void ABatteryMan::BeginPlay()
 	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
 	LeftFistCollisionBox->AttachToComponent(GetMesh(), AttachmentRules, "LeftFistCollision");
 	LeftFistCollisionBox->SetHiddenInGame(false);
+	LeftFistCollisionBox->SetCollisionProfileName("NoCollision");
 	RightFistCollisionBox->AttachToComponent(GetMesh(), AttachmentRules, "RightFistCollision");
 	RightFistCollisionBox->SetHiddenInGame(false);
+	RightFistCollisionBox->SetCollisionProfileName("NoCollision");
+
 
 }
 
@@ -140,7 +143,7 @@ void ABatteryMan::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	//PlayerInputComponent->BindAction("Dance", IE_Pressed, this, &ABatteryMan::DanceStart);
 	//PlayerInputComponent->BindAction("Dance", IE_Released, this, &ABatteryMan::DanceStop);
 	PlayerInputComponent->BindAction("Dance", IE_Pressed, this, &ABatteryMan::DanceLoop);
-	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ABatteryMan::AttackStart);
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ABatteryMan::AttackInput);
 	PlayerInputComponent->BindAction("Attack", IE_Released, this, &ABatteryMan::AttackStop);
 
 }
@@ -219,7 +222,7 @@ void ABatteryMan::DanceStop() {
 	//bDancing = false;
 }
 
-void ABatteryMan::AttackStart(){
+void ABatteryMan::AttackInput() {
 	bAttacking = true;
 	//GetCharacterMovement()->MaxWalkSpeed = 0.0f;
 	FString MontageSection = "start_" + FString::FromInt(ComboLoop);
@@ -229,12 +232,21 @@ void ABatteryMan::AttackStart(){
 	if (ComboLoop > 3) {
 		ComboLoop = 1;
 	}
+}
 
+void ABatteryMan::AttackStart(){
+	UE_LOG(LogTemp, Warning, TEXT("attack start, status->weapon"));
+	LeftFistCollisionBox->SetCollisionProfileName("Weapon");
+	RightFistCollisionBox->SetCollisionProfileName("Weapon");
 }
 
 void ABatteryMan::AttackStop() {
 	//bAttacking = false;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
+
+	UE_LOG(LogTemp, Warning, TEXT("attack stop, status->no collision"));
+	LeftFistCollisionBox->SetCollisionProfileName("NoCollision");
+	RightFistCollisionBox->SetCollisionProfileName("NoCollision");
 }
 
 void ABatteryMan::DanceLoop() {

@@ -111,6 +111,7 @@ public:
 	void DanceStart();
 	void DanceStop();
 	void DanceLoop();
+	void AttackInput();
 	void AttackStart();
 	void AttackStop();
 	void JumpStart();
