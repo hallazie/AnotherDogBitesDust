@@ -1,12 +1,4 @@
-/*
- * @Author: Xiao Shanghua
- * @Date: 2020-10-11 19:19:02
- * @LastEditTime: 2020-10-25 16:54:52
- * @LastEditors: Xiao Shanghua
- * @Description: 
- * @FilePath: \Battery_Collector\Source\Battery_Collector\BatteryMan.cpp
- */
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include <string>
 #include "BatteryMan.h"
@@ -56,27 +48,27 @@ ABatteryMan::ABatteryMan()
 	RightFistCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightFistCollesionBox"));
 	RightFistCollisionBox->SetupAttachment(RootComponent);
 
-	//static ConstructorHelpers::FObjectFinder<UAnimSequence> MeleeFistAttackObject(TEXT("AnimSequence'/Game/Animation/SWAT/Hook_Punch.Hook_Punch'"));
+	//static ConstructorHelpers::FObjectFinder<UAnimSequence> MeleeFistAttackObject(TEXT("AnimSequence'/Game/Character/SWAT/Hook_Punch.Hook_Punch'"));
 	//if(MeleeFistAttackObject.Succeeded()){
 	//	MeleeFistAttack = MeleeFistAttackObject.Object;
 	//}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> MeleeFistAttackMontageObject(TEXT("AnimMontage'/Game/Animation/SWAT/BPM_MeleeFistAttack.BPM_MeleeFistAttack'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> MeleeFistAttackMontageObject(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_MeleeFistAttack.BPM_MeleeFistAttack'"));
 	if (MeleeFistAttackMontageObject.Succeeded()) {
 		MeleeFistAttackMontage = MeleeFistAttackMontageObject.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> DanceMontageObject(TEXT("AnimMontage'/Game/Animation/SWAT/BPM_Dance.BPM_Dance'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DanceMontageObject(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_Dance.BPM_Dance'"));
 	if (DanceMontageObject.Succeeded()) {
 		DanceMontage = DanceMontageObject.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> CombatAttackMontageObject(TEXT("AnimMontage'/Game/Animation/SWAT/BPM_ComboFistAttack.BPM_ComboFistAttack'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> CombatAttackMontageObject(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_ComboFistAttack.BPM_ComboFistAttack'"));
 	if (CombatAttackMontageObject.Succeeded()) {
 		CombatAttackMontage = CombatAttackMontageObject.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> JumpMontageObject(TEXT("AnimMontage'/Game/Animation/SWAT/BPM_Jump.BPM_Jump'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> JumpMontageObject(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_Jump.BPM_Jump'"));
 	if (JumpMontageObject.Succeeded()) {
 		JumpMontage = JumpMontageObject.Object;
 	}
@@ -130,9 +122,7 @@ void ABatteryMan::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ABatteryMan::JumpStart);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABatteryMan::JumpStart);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ABatteryMan::JumpEnd);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABatteryMan::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABatteryMan::MoveRight);
@@ -144,26 +134,25 @@ void ABatteryMan::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	//PlayerInputComponent->BindAction("Dance", IE_Released, this, &ABatteryMan::DanceStop);
 	PlayerInputComponent->BindAction("Dance", IE_Pressed, this, &ABatteryMan::DanceLoop);
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ABatteryMan::AttackInput);
-	PlayerInputComponent->BindAction("Attack", IE_Released, this, &ABatteryMan::AttackStop);
+	//PlayerInputComponent->BindAction("Attack", IE_Released, this, &ABatteryMan::AttackStop);
 
 }
 
 void ABatteryMan::ResumeMovingStatus() {
-	//if (bAttacking || bDancing) {
-	//	StopAnimMontage(MeleeFistAttackMontage);
-	//	StopAnimMontage(DanceMontage);
-	//}
+
 }
 
 void ABatteryMan::MoveForward(float Axis){
 	if(!bDead){
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Axis);
 	}
-	ResumeMovingStatus();
+	if (bDancing && GetCharacterMovement()->MaxWalkSpeed > 10.0f) {
+		StopAnimMontage(DanceMontage);
+		bDancing = false;
+	}
 }
 
 void ABatteryMan::MoveRight(float Axis){
@@ -174,7 +163,10 @@ void ABatteryMan::MoveRight(float Axis){
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Axis);
 	}
-	ResumeMovingStatus();
+	if (bDancing && GetCharacterMovement()->MaxWalkSpeed > 10.0f) {
+		StopAnimMontage(DanceMontage);
+		bDancing = false;
+	}
 }
 
 void ABatteryMan::OnBeginOverlap(
@@ -267,11 +259,11 @@ void ABatteryMan::DanceLoop() {
 
 void ABatteryMan::JumpStart()
 {
-	bInAir = true;
-	PlayAnimMontage(JumpMontage, 1.0f, FName("jump_air"));
-	Super::Jump();
+
 }
 
 void ABatteryMan::JumpEnd() {
-
+	bInAir = true;
+	PlayAnimMontage(JumpMontage, 1.0f, FName("jump_air"));
+	Super::Jump();
 }

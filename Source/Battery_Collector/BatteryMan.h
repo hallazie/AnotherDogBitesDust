@@ -1,12 +1,4 @@
-/*
- * @Author: Xiao Shanghua
- * @Date: 2020-10-11 19:19:02
- * @LastEditTime: 2020-10-25 16:41:14
- * @LastEditors: Xiao Shanghua
- * @Description: 
- * @FilePath: \Battery_Collector\Source\Battery_Collector\BatteryMan.h
- */
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
