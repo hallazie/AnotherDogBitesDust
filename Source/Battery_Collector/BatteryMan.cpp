@@ -19,7 +19,7 @@ ABatteryMan::ABatteryMan()
 
 	Power = 100.0f;
 	DefaultMaxWalkSpeed = 600.0f;
-	Power_Threshold = 3.0f;
+	Power_Threshold = 1.0f;
 	SprintMultiplier = 2.0f;
 	ComboLoop = 1;
 
@@ -149,7 +149,8 @@ void ABatteryMan::MoveForward(float Axis){
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Axis);
 	}
-	if (bDancing && GetCharacterMovement()->MaxWalkSpeed > 10.0f) {
+	if (bDancing && GetCurrentSpeed() > 20.0f) {
+		UE_LOG(LogTemp, Warning, TEXT("stop dancing in MoveForward with maxWalkSpeed=%f"), GetCharacterMovement()->MaxWalkSpeed);
 		StopAnimMontage(DanceMontage);
 		bDancing = false;
 	}
@@ -163,7 +164,7 @@ void ABatteryMan::MoveRight(float Axis){
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Axis);
 	}
-	if (bDancing && GetCharacterMovement()->MaxWalkSpeed > 10.0f) {
+	if (bDancing && GetCurrentSpeed() > 10.0f) {
 		StopAnimMontage(DanceMontage);
 		bDancing = false;
 	}
@@ -178,7 +179,7 @@ void ABatteryMan::OnBeginOverlap(
 		const FHitResult & SweepResult
 ){
 	if(OtherActor->ActorHasTag("Recharge")){
-		UE_LOG(LogTemp, Warning, TEXT("collided with"));
+		UE_LOG(LogTemp, Warning, TEXT("collided with charger"));
 		Power += 10.0f;
 		if(Power > 100.0f){
 			Power = 100.0f;
@@ -266,4 +267,13 @@ void ABatteryMan::JumpEnd() {
 	bInAir = true;
 	PlayAnimMontage(JumpMontage, 1.0f, FName("jump_air"));
 	Super::Jump();
+}
+
+/*
+UTILS FUNCTIONS
+*/
+
+float ABatteryMan::GetCurrentSpeed() {
+	float currentSpeed = FVector::DotProduct(GetVelocity(), GetActorRotation().Vector());
+	return currentSpeed;
 }

@@ -109,6 +109,8 @@ public:
 	void JumpStart();
 	void JumpEnd();
 
+	float GetCurrentSpeed();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
