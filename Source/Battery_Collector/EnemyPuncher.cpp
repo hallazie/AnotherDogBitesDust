@@ -9,6 +9,11 @@ AEnemyPuncher::AEnemyPuncher()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SimpleAttackMontageObject(TEXT("AnimMontage'/Game/Characters/Enemy/BPM_EnemyPuncherAttack.BPM_EnemyPuncherAttack'"));
+	if (SimpleAttackMontageObject.Succeeded()) {
+		SimpleAttackMontage = SimpleAttackMontageObject.Object;
+	}
+
 }
 
 // Called when the game starts or when spawned
@@ -32,3 +37,8 @@ void AEnemyPuncher::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 }
 
+void AEnemyPuncher::AttackStart() {
+}
+
+void AEnemyPuncher::AttackStop() {
+}

@@ -15,6 +15,15 @@ public:
 	// Sets default values for this character's properties
 	AEnemyPuncher();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		class UAnimMontage* SimpleAttackMontage;
+
+	UFUNCTION(BlueprintCallable, Category = "ControlFunction")
+		void AttackStart();
+
+	UFUNCTION(BlueprintCallable, Category = "ControlFunction")
+		void AttackStop();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
