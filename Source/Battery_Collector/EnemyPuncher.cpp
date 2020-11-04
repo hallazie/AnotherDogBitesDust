@@ -38,7 +38,12 @@ void AEnemyPuncher::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 }
 
 void AEnemyPuncher::AttackStart() {
+	PlayAnimMontage(SimpleAttackMontage, 2.0f);
+	DefaultWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = 0.0f;
 }
 
 void AEnemyPuncher::AttackStop() {
+	StopAnimMontage(SimpleAttackMontage);
+	GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
 }

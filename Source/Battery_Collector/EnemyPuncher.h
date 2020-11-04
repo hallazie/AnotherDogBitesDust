@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 #include "EnemyPuncher.generated.h"
 
 UCLASS()
@@ -23,6 +25,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ControlFunction")
 		void AttackStop();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		float DefaultWalkSpeed;
 
 protected:
 	// Called when the game starts or when spawned
