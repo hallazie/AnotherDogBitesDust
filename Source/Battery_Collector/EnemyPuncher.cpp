@@ -9,6 +9,8 @@ AEnemyPuncher::AEnemyPuncher()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	DefaultWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> SimpleAttackMontageObject(TEXT("AnimMontage'/Game/Characters/Enemy/BPM_EnemyPuncherAttack.BPM_EnemyPuncherAttack'"));
 	if (SimpleAttackMontageObject.Succeeded()) {
 		SimpleAttackMontage = SimpleAttackMontageObject.Object;
@@ -38,12 +40,24 @@ void AEnemyPuncher::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 }
 
 void AEnemyPuncher::AttackStart() {
-	PlayAnimMontage(SimpleAttackMontage, 2.0f);
 	DefaultWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+	PlayAnimMontage(SimpleAttackMontage, 2.0f);
 }
 
 void AEnemyPuncher::AttackStop() {
 	StopAnimMontage(SimpleAttackMontage);
 	GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+}
+
+void AEnemyPuncher::BehaviourTreePatrol() {
+
+}
+
+void AEnemyPuncher::BehaviourTreeChasePlayer() {
+
+}
+
+void AEnemyPuncher::BehaviourTreeAttackPlayer() {
+
 }
