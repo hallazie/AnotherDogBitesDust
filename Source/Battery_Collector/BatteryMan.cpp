@@ -260,13 +260,14 @@ void ABatteryMan::DanceLoop() {
 
 void ABatteryMan::JumpStart()
 {
-
+	bInAir = true;
+	PlayAnimMontage(JumpMontage, 1.0f, FName("jump_air"));
+	FPlatformProcess::Sleep(0.5);
+	Super::Jump();
 }
 
 void ABatteryMan::JumpEnd() {
-	bInAir = true;
-	PlayAnimMontage(JumpMontage, 1.0f, FName("jump_air"));
-	Super::Jump();
+
 }
 
 /*
