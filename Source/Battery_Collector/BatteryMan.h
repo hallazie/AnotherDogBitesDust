@@ -3,9 +3,12 @@
 #pragma once
 
 #include "string.h"
+#include <string>
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-
+#include "Engine.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/Actor.h"
+#include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -14,6 +17,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/Character.h"
 #include "Blueprint/UserWidget.h"
 
 #include "BatteryMan.generated.h"
@@ -42,6 +46,9 @@ public:
 	bool bInAir;
 
 	int ComboLoop;
+	int DanceType;
+
+	class UAnimMontage* DanceMontage;
 
 	// String movingStatus; // run / sprint / idle
 
@@ -64,7 +71,10 @@ public:
 		class UAnimMontage* MeleeFistAttackMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
-		class UAnimMontage* DanceMontage;
+		class UAnimMontage* DanceRumbaMontage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+		class UAnimMontage* DanceSillyMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 		class UAnimMontage* CombatAttackMontage;
@@ -77,6 +87,15 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UBoxComponent* RightFistCollisionBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class USoundWave* FootStepDirtSoundWave;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class USoundWave* FootStepGrassSoundWave;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class USoundWave* FootStepConcretSoundWave;
 
 	UFUNCTION()
 		void OnBeginOverlap(
@@ -106,8 +125,10 @@ public:
 	void AttackInput();
 	void AttackStart();
 	void AttackStop();
+	void JumpInput();
 	void JumpStart();
 	void JumpEnd();
+	void TriggerFootStep();
 
 	float GetCurrentSpeed();
 

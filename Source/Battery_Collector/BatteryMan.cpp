@@ -1,10 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include <string>
 #include "BatteryMan.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "GameFramework/Actor.h"
-#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 ABatteryMan::ABatteryMan()
@@ -22,6 +19,7 @@ ABatteryMan::ABatteryMan()
 	Power_Threshold = 1.0f;
 	SprintMultiplier = 2.0f;
 	ComboLoop = 1;
+	DanceType = 0;
 
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
 
@@ -53,25 +51,47 @@ ABatteryMan::ABatteryMan()
 	//	MeleeFistAttack = MeleeFistAttackObject.Object;
 	//}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> MeleeFistAttackMontageObject(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_MeleeFistAttack.BPM_MeleeFistAttack'"));
-	if (MeleeFistAttackMontageObject.Succeeded()) {
-		MeleeFistAttackMontage = MeleeFistAttackMontageObject.Object;
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> MeleeFistAttackMtgObj(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_MeleeFistAttack.BPM_MeleeFistAttack'"));
+	if (MeleeFistAttackMtgObj.Succeeded()) {
+		MeleeFistAttackMontage = MeleeFistAttackMtgObj.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> DanceMontageObject(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_Dance.BPM_Dance'"));
-	if (DanceMontageObject.Succeeded()) {
-		DanceMontage = DanceMontageObject.Object;
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DanceRumbaMtgObj(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_RumbaDance.BPM_RumbaDance'"));
+	if (DanceRumbaMtgObj.Succeeded()) {
+		DanceRumbaMontage = DanceRumbaMtgObj.Object;
+		DanceMontage = DanceRumbaMontage;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> CombatAttackMontageObject(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_ComboFistAttack.BPM_ComboFistAttack'"));
-	if (CombatAttackMontageObject.Succeeded()) {
-		CombatAttackMontage = CombatAttackMontageObject.Object;
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DanceSillyMtgObj(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_SillyDance.BPM_SillyDance'"));
+	if (DanceSillyMtgObj.Succeeded()) {
+		DanceSillyMontage = DanceSillyMtgObj.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> JumpMontageObject(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_Jump.BPM_Jump'"));
-	if (JumpMontageObject.Succeeded()) {
-		JumpMontage = JumpMontageObject.Object;
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> CombatAttackMtgObj(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_ComboFistAttack.BPM_ComboFistAttack'"));
+	if (CombatAttackMtgObj.Succeeded()) {
+		CombatAttackMontage = CombatAttackMtgObj.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> JumpMtgObj(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_Jump.BPM_Jump'"));
+	if (JumpMtgObj.Succeeded()) {
+		JumpMontage = JumpMtgObj.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> FootStepDirtSWObj(TEXT("SoundWave'/Game/Audios/step-dirt.step-dirt'"));
+	if (FootStepDirtSWObj.Succeeded()) {
+		FootStepDirtSoundWave = FootStepDirtSWObj.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> FootStepGrassSWObj(TEXT("SoundWave'/Game/Audios/step-grass.step-grass'"));
+	if (FootStepGrassSWObj.Succeeded()) {
+		FootStepGrassSoundWave = FootStepGrassSWObj.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> FootStepConcretSWObj(TEXT("SoundWave'/Game/Audios/step-concret.step-concret'"));
+	if (FootStepConcretSWObj.Succeeded()) {
+		FootStepConcretSoundWave = FootStepConcretSWObj.Object;
+	}
+
 }
 
 // Called when the game starts or when spawned
@@ -122,8 +142,8 @@ void ABatteryMan::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABatteryMan::JumpStart);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ABatteryMan::JumpEnd);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABatteryMan::JumpInput);
+	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &ABatteryMan::JumpEnd);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABatteryMan::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABatteryMan::MoveRight);
 
@@ -216,14 +236,16 @@ void ABatteryMan::DanceStop() {
 }
 
 void ABatteryMan::AttackInput() {
-	bAttacking = true;
-	//GetCharacterMovement()->MaxWalkSpeed = 0.0f;
-	FString MontageSection = "start_" + FString::FromInt(ComboLoop);
-	UE_LOG(LogTemp, Warning, TEXT("playing montage section: start_%d"), ComboLoop);
-	PlayAnimMontage(CombatAttackMontage, 2.0f, FName(MontageSection));
-	ComboLoop += 1;
-	if (ComboLoop > 3) {
-		ComboLoop = 1;
+	if (!bAttacking && !bInAir) {
+		bAttacking = true;
+		GetCharacterMovement()->MaxWalkSpeed = 10.0f;
+		FString MontageSection = "start_" + FString::FromInt(ComboLoop);
+		UE_LOG(LogTemp, Warning, TEXT("playing montage section: start_%d"), ComboLoop);
+		PlayAnimMontage(CombatAttackMontage, 2.0f, FName(MontageSection));
+		ComboLoop += 1;
+		if (ComboLoop > 3) {
+			ComboLoop = 1;
+		}
 	}
 }
 
@@ -234,7 +256,7 @@ void ABatteryMan::AttackStart(){
 }
 
 void ABatteryMan::AttackStop() {
-	//bAttacking = false;
+	bAttacking = false;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
 
 	UE_LOG(LogTemp, Warning, TEXT("attack stop, status->no collision"));
@@ -251,23 +273,43 @@ void ABatteryMan::DanceLoop() {
 	}
 	else {
 		bDancing = true;
+		DanceType++;
+		if (DanceType > 1){
+			DanceType = 0;
+		}
+		switch (DanceType) {
+		case 0:
+			DanceMontage = DanceRumbaMontage;
+			break;
+		case 1:
+			DanceMontage = DanceSillyMontage;
+			break;
+		default:
+			DanceMontage = DanceRumbaMontage;
+		}
 		UE_LOG(LogTemp, Warning, TEXT("raw max speed: %f"), GetCharacterMovement()->MaxWalkSpeed);
 		GetCharacterMovement()->MaxWalkSpeed = 0.0f;
 		PlayAnimMontage(DanceMontage, 1.5f);
 	}
 }
 
+void ABatteryMan::JumpInput() {
+	if (!bInAir) {
+		//PlayAnimMontage(JumpMontage, 2.0f, FName("jump_start"));
+		//PlayAnimMontage(JumpMontage, 2.0f, FName("jump_air"));
+		//PlayAnimMontage(JumpMontage, 2.0f, FName("jump_end"));
+		PlayAnimMontage(JumpMontage, 1.0f, FName("jump_air"));
+	}
+}
 
 void ABatteryMan::JumpStart()
 {
 	bInAir = true;
-	PlayAnimMontage(JumpMontage, 1.0f, FName("jump_air"));
-	FPlatformProcess::Sleep(0.5);
 	Super::Jump();
 }
 
 void ABatteryMan::JumpEnd() {
-
+	bInAir = false;
 }
 
 /*
@@ -277,4 +319,10 @@ UTILS FUNCTIONS
 float ABatteryMan::GetCurrentSpeed() {
 	float currentSpeed = FVector::DotProduct(GetVelocity(), GetActorRotation().Vector());
 	return currentSpeed;
+}
+
+void ABatteryMan::TriggerFootStep() {
+	//GEngine->AddOnScreenDebugMessage(-1, 4.5f, FColor::Orange, "playing footstep sound");
+	//UGameplayStatics::PlaySoundAtLocation(GetWorld(), FootStepDirtSoundWave, GetActorLocation());
+	UGameplayStatics::PlaySound2D(this, FootStepDirtSoundWave, 0.2f);
 }
