@@ -9,6 +9,8 @@ AEnemyPuncher::AEnemyPuncher()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	Health = 100.0f;
+
 	DefaultWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> SimpleAttackMontageObject(TEXT("AnimMontage'/Game/Characters/Enemy/BPM_EnemyPuncherAttack.BPM_EnemyPuncherAttack'"));

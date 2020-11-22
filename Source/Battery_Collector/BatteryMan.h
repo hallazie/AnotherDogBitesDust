@@ -6,6 +6,8 @@
 #include <string>
 #include "CoreMinimal.h"
 #include "Engine.h"
+#include "Perception/AISense_Hearing.h"
+#include "Perception/AISense_Damage.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
@@ -44,9 +46,13 @@ public:
 	bool bAttacking;
 	bool bDancing;
 	bool bInAir;
+	bool bActivateSprint;
 
 	int ComboLoop;
 	int DanceType;
+
+	float LeftFistDamage;
+	float RightFistDamage;
 
 	class UAnimMontage* DanceMontage;
 
@@ -60,6 +66,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		float Power;
+
+	UPROPERTY(EditAnywhere)
+		float Health;
+
+	UPROPERTY(EditAnywhere)
+		float Energy;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		float Power_Threshold;
@@ -114,7 +126,7 @@ public:
 
 	void RestartGame();
 
-	void ResumeMovingStatus();
+	void ResumeMovingStatus(bool);
 
 	void SprintHold();
 	void SprintStart();

@@ -29,6 +29,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		float DefaultWalkSpeed;
 
+	UPROPERTY(EditAnywhere)
+		float Health;
+
 	void BehaviourTreePatrol();
 
 	void BehaviourTreeChasePlayer();

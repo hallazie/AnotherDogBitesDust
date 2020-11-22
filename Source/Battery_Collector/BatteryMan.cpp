@@ -13,13 +13,18 @@ ABatteryMan::ABatteryMan()
 	bAttacking = false;
 	bDancing = false;
 	bInAir = false;
+	bActivateSprint = false;
 
 	Power = 100.0f;
+	Health = 100.0f;
+	Energy = 100.0f;
 	DefaultMaxWalkSpeed = 600.0f;
 	Power_Threshold = 1.0f;
 	SprintMultiplier = 2.0f;
 	ComboLoop = 1;
 	DanceType = 0;
+	LeftFistDamage = 0.0f;
+	RightFistDamage = 0.0f;
 
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
 
@@ -158,8 +163,17 @@ void ABatteryMan::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 }
 
-void ABatteryMan::ResumeMovingStatus() {
-
+void ABatteryMan::ResumeMovingStatus(bool stopAttack) {
+	if (bDancing) {
+		UE_LOG(LogTemp, Warning, TEXT("stop dancing in MoveForward with maxWalkSpeed=%f"), GetCharacterMovement()->MaxWalkSpeed);
+		StopAnimMontage(DanceMontage);
+		bDancing = false;
+	}
+	if (stopAttack && bAttacking) {
+		bAttacking = false;
+		StopAnimMontage(CombatAttackMontage);
+		AttackStop();
+	}
 }
 
 void ABatteryMan::MoveForward(float Axis){
@@ -168,11 +182,12 @@ void ABatteryMan::MoveForward(float Axis){
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Axis);
-	}
-	if (bDancing && GetCurrentSpeed() > 20.0f) {
-		UE_LOG(LogTemp, Warning, TEXT("stop dancing in MoveForward with maxWalkSpeed=%f"), GetCharacterMovement()->MaxWalkSpeed);
-		StopAnimMontage(DanceMontage);
-		bDancing = false;
+	} 
+	if (GetCurrentSpeed() > 20.0f) {
+		ResumeMovingStatus(false);
+		if (bActivateSprint) {
+			SprintStart();
+		}
 	}
 }
 
@@ -184,9 +199,11 @@ void ABatteryMan::MoveRight(float Axis){
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Axis);
 	}
-	if (bDancing && GetCurrentSpeed() > 10.0f) {
-		StopAnimMontage(DanceMontage);
-		bDancing = false;
+	if (GetCurrentSpeed() > 20.0f) {
+		ResumeMovingStatus(false);
+		if (bActivateSprint) {
+			SprintStart();
+		}
 	}
 }
 
@@ -213,17 +230,16 @@ void ABatteryMan::RestartGame(){
 }
 
 void ABatteryMan::SprintStart(){
+	bActivateSprint = true;
+	ResumeMovingStatus(true);
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed * SprintMultiplier;
-	if (bDancing) {
-		StopAnimMontage(DanceMontage);
-		bDancing = false;
-	}
 	UE_LOG(LogTemp, Warning, TEXT("sprint start speed: %f"), GetCharacterMovement()->MaxWalkSpeed);
 }
 
 void ABatteryMan::SprintStop(){
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
 	UE_LOG(LogTemp, Warning, TEXT("sprint stop speed: %f"), GetCharacterMovement()->MaxWalkSpeed);
+	bActivateSprint = false;
 }
 
 void ABatteryMan::DanceStart(){
@@ -238,8 +254,33 @@ void ABatteryMan::DanceStop() {
 void ABatteryMan::AttackInput() {
 	if (!bAttacking && !bInAir) {
 		bAttacking = true;
-		GetCharacterMovement()->MaxWalkSpeed = 10.0f;
+		GetCharacterMovement()->MaxWalkSpeed = 0.0f;
 		FString MontageSection = "start_" + FString::FromInt(ComboLoop);
+		switch (ComboLoop) {
+		case 1:
+			LeftFistCollisionBox->SetCollisionProfileName("Weapon");
+			LeftFistDamage = 20.0f;
+			RightFistCollisionBox->SetCollisionProfileName("NoCollision");
+			RightFistDamage = 0.0f;
+			break;
+		case 2:
+			LeftFistCollisionBox->SetCollisionProfileName("NoCollision");
+			LeftFistDamage = 0.0f;
+			RightFistCollisionBox->SetCollisionProfileName("Weapon");
+			RightFistDamage = 20.0f;
+			break;
+		case 3:
+			LeftFistCollisionBox->SetCollisionProfileName("Weapon");
+			LeftFistDamage = 20.0f;
+			RightFistCollisionBox->SetCollisionProfileName("NoCollision");
+			RightFistDamage = 0.0f;
+			break;
+		default:
+			LeftFistCollisionBox->SetCollisionProfileName("NoCollision");
+			LeftFistDamage = 0.0f;
+			RightFistCollisionBox->SetCollisionProfileName("NoCollision");
+			RightFistDamage = 0.0f;
+		}
 		UE_LOG(LogTemp, Warning, TEXT("playing montage section: start_%d"), ComboLoop);
 		PlayAnimMontage(CombatAttackMontage, 2.0f, FName(MontageSection));
 		ComboLoop += 1;
@@ -250,18 +291,15 @@ void ABatteryMan::AttackInput() {
 }
 
 void ABatteryMan::AttackStart(){
-	UE_LOG(LogTemp, Warning, TEXT("attack start, status->weapon"));
-	LeftFistCollisionBox->SetCollisionProfileName("Weapon");
-	RightFistCollisionBox->SetCollisionProfileName("Weapon");
+	FVector LeftFistLocation = GetMesh()->GetSocketLocation(TEXT("LeftFistCollision"));
+	FVector RightFistLocation = GetMesh()->GetSocketLocation(TEXT("RightFistCollision"));
+	UAISense_Damage::ReportDamageEvent(GetWorld(), nullptr, this, LeftFistDamage, LeftFistLocation, LeftFistLocation);
+	UAISense_Damage::ReportDamageEvent(GetWorld(), nullptr, this, RightFistDamage, RightFistLocation, RightFistLocation);
 }
 
 void ABatteryMan::AttackStop() {
 	bAttacking = false;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
-
-	UE_LOG(LogTemp, Warning, TEXT("attack stop, status->no collision"));
-	LeftFistCollisionBox->SetCollisionProfileName("NoCollision");
-	RightFistCollisionBox->SetCollisionProfileName("NoCollision");
 }
 
 void ABatteryMan::DanceLoop() {
@@ -299,6 +337,7 @@ void ABatteryMan::JumpInput() {
 		//PlayAnimMontage(JumpMontage, 2.0f, FName("jump_air"));
 		//PlayAnimMontage(JumpMontage, 2.0f, FName("jump_end"));
 		PlayAnimMontage(JumpMontage, 1.0f, FName("jump_air"));
+
 	}
 }
 
@@ -323,6 +362,7 @@ float ABatteryMan::GetCurrentSpeed() {
 
 void ABatteryMan::TriggerFootStep() {
 	//GEngine->AddOnScreenDebugMessage(-1, 4.5f, FColor::Orange, "playing footstep sound");
-	//UGameplayStatics::PlaySoundAtLocation(GetWorld(), FootStepDirtSoundWave, GetActorLocation());
 	UGameplayStatics::PlaySound2D(this, FootStepDirtSoundWave, 0.2f);
+	//UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1.0f, this, 0.0f, TEXT("BatteryManFootStepNoise"));
+
 }
