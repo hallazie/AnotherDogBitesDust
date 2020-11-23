@@ -109,6 +109,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class USoundWave* FootStepConcretSoundWave;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		TArray<AActor*> HitActorArrayCache;
+
 	UFUNCTION()
 		void OnBeginOverlap(
 			class UPrimitiveComponent* HitComp, 

@@ -26,6 +26,8 @@ ABatteryMan::ABatteryMan()
 	LeftFistDamage = 0.0f;
 	RightFistDamage = 0.0f;
 
+	HitActorArrayCache.Empty();
+
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
 
 	bUseControllerRotationPitch = false;
@@ -291,15 +293,16 @@ void ABatteryMan::AttackInput() {
 }
 
 void ABatteryMan::AttackStart(){
+	HitActorArrayCache.Empty();
 	FVector LeftFistLocation = GetMesh()->GetSocketLocation(TEXT("LeftFistCollision"));
 	FVector RightFistLocation = GetMesh()->GetSocketLocation(TEXT("RightFistCollision"));
-	UAISense_Damage::ReportDamageEvent(GetWorld(), nullptr, this, LeftFistDamage, LeftFistLocation, LeftFistLocation);
-	UAISense_Damage::ReportDamageEvent(GetWorld(), nullptr, this, RightFistDamage, RightFistLocation, RightFistLocation);
+	//UAISense_Damage::ReportDamageEvent(LeftFistCollisionBox, nullptr, this, LeftFistDamage, GetActorLocation(), LeftFistLocation);
 }
 
 void ABatteryMan::AttackStop() {
 	bAttacking = false;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
+	HitActorArrayCache.Empty();
 }
 
 void ABatteryMan::DanceLoop() {
@@ -363,6 +366,6 @@ float ABatteryMan::GetCurrentSpeed() {
 void ABatteryMan::TriggerFootStep() {
 	//GEngine->AddOnScreenDebugMessage(-1, 4.5f, FColor::Orange, "playing footstep sound");
 	UGameplayStatics::PlaySound2D(this, FootStepDirtSoundWave, 0.2f);
-	//UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1.0f, this, 0.0f, TEXT("BatteryManFootStepNoise"));
+	//UAISense_Hearing::ReportNoiseEvent(GetMesh(), GetActorLocation(), 1.0f, this, 0.0f, TEXT("BatteryManFootStepNoise"));
 
 }
