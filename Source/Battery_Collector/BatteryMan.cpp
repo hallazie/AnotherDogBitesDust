@@ -26,7 +26,7 @@ ABatteryMan::ABatteryMan()
 	LeftFistDamage = 0.0f;
 	RightFistDamage = 0.0f;
 
-	HitActorArrayCache.Empty();
+	//HitActorArrayCache.Empty();
 
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
 
@@ -293,7 +293,7 @@ void ABatteryMan::AttackInput() {
 }
 
 void ABatteryMan::AttackStart(){
-	HitActorArrayCache.Empty();
+	//HitActorArrayCache.Empty();
 	FVector LeftFistLocation = GetMesh()->GetSocketLocation(TEXT("LeftFistCollision"));
 	FVector RightFistLocation = GetMesh()->GetSocketLocation(TEXT("RightFistCollision"));
 	//UAISense_Damage::ReportDamageEvent(LeftFistCollisionBox, nullptr, this, LeftFistDamage, GetActorLocation(), LeftFistLocation);
@@ -302,7 +302,7 @@ void ABatteryMan::AttackStart(){
 void ABatteryMan::AttackStop() {
 	bAttacking = false;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
-	HitActorArrayCache.Empty();
+	//HitActorArrayCache.Empty();
 }
 
 void ABatteryMan::DanceLoop() {
@@ -339,7 +339,7 @@ void ABatteryMan::JumpInput() {
 		//PlayAnimMontage(JumpMontage, 2.0f, FName("jump_start"));
 		//PlayAnimMontage(JumpMontage, 2.0f, FName("jump_air"));
 		//PlayAnimMontage(JumpMontage, 2.0f, FName("jump_end"));
-		PlayAnimMontage(JumpMontage, 1.0f, FName("jump_air"));
+		PlayAnimMontage(JumpMontage, 1.2f, FName("jump_air"));
 
 	}
 }
