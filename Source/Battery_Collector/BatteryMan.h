@@ -109,8 +109,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class USoundWave* FootStepConcretSoundWave;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	//	TArray<AActor*> HitActorArrayCache;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		TArray<AActor*> HitActorArrayCache;
 
 	UFUNCTION()
 		void OnBeginOverlap(
@@ -121,6 +121,12 @@ public:
 			bool bFromSweep,
 			const FHitResult & SweepResult
 			);
+
+	UFUNCTION()
+		void AttackStart();
+
+	UFUNCTION()
+		void AttackStop();
 
 	UPROPERTY(EditAnywhere, Category="UI HUD")
 		TSubclassOf<UUserWidget> Player_Power_Widget_Class;
@@ -138,8 +144,6 @@ public:
 	void DanceStop();
 	void DanceLoop();
 	void AttackInput();
-	void AttackStart();
-	void AttackStop();
 	void JumpInput();
 	void JumpStart();
 	void JumpEnd();

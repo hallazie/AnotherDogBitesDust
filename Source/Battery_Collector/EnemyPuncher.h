@@ -47,6 +47,8 @@ public:
 	void BehaviourTreeAttackPlayer();
 
 	bool bBeingHit;
+	bool bAlive;
+	bool bDestroyProcess;
 
 protected:
 	// Called when the game starts or when spawned

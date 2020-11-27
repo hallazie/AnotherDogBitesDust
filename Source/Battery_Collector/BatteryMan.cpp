@@ -74,7 +74,7 @@ ABatteryMan::ABatteryMan()
 		DanceSillyMontage = DanceSillyMtgObj.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> CombatAttackMtgObj(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_ComboFistAttack.BPM_ComboFistAttack'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> CombatAttackMtgObj(TEXT("AnimMontage'/Game/Characters/SWAT/BPM_Attack.BPM_Attack'"));
 	if (CombatAttackMtgObj.Succeeded()) {
 		CombatAttackMontage = CombatAttackMtgObj.Object;
 	}
@@ -293,7 +293,7 @@ void ABatteryMan::AttackInput() {
 }
 
 void ABatteryMan::AttackStart(){
-	//HitActorArrayCache.Empty();
+	HitActorArrayCache.Empty();
 	FVector LeftFistLocation = GetMesh()->GetSocketLocation(TEXT("LeftFistCollision"));
 	FVector RightFistLocation = GetMesh()->GetSocketLocation(TEXT("RightFistCollision"));
 	//UAISense_Damage::ReportDamageEvent(LeftFistCollisionBox, nullptr, this, LeftFistDamage, GetActorLocation(), LeftFistLocation);
@@ -302,7 +302,6 @@ void ABatteryMan::AttackStart(){
 void ABatteryMan::AttackStop() {
 	bAttacking = false;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
-	//HitActorArrayCache.Empty();
 }
 
 void ABatteryMan::DanceLoop() {

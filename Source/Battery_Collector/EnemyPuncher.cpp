@@ -12,6 +12,8 @@ AEnemyPuncher::AEnemyPuncher()
 	Health = 100.0f;
 
 	bBeingHit = false;
+	bAlive = true;
+	bDestroyProcess = false;
 
 	DefaultWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
@@ -36,6 +38,12 @@ AEnemyPuncher::AEnemyPuncher()
 void AEnemyPuncher::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/*deal with damage in c++ instead of blueprint*/
+
+	//if (Owner) {
+	//	Owner->OnTakeAnyDamage.AddDynamic(this, &UYTHealthComponent::TakeDamage);
+	//}
 	
 }
 
@@ -44,9 +52,27 @@ void AEnemyPuncher::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//if (Health <= 0.0f) {
-	//	PlayAnimMontage(DeadMontage);
-	//}
+	if (!bAlive && !bDestroyProcess) {
+		bDestroyProcess = true;
+
+		AttackStop();
+		GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+		
+		
+		////GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		////GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+		SetActorEnableCollision(false);
+
+		//GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+		//GetMesh()->SetAllBodiesSimulatePhysics(true);
+		//GetMesh()->SetSimulatePhysics(true);
+		//GetMesh()->WakeAllRigidBodies();
+		//GetMesh()->bBlendPhysics = true;
+
+		GetOwner()->Destroy();
+
+	}
 
 }
 
@@ -80,12 +106,25 @@ void AEnemyPuncher::BehaviourTreeAttackPlayer() {
 }
 
 float AEnemyPuncher::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) {
-	FString StrDamageAmount = FString::SanitizeFloat(DamageAmount);
-	//FString StrHealth = FString::SanitizeFloat(Health);
-
+	
 	Health -= DamageAmount;
-	GEngine->AddOnScreenDebugMessage(-1, 4.5f, FColor::Red, *StrDamageAmount);
-	PlayAnimMontage(HitReactMontage);
+
+	FString StrHealthAmount = FString::SanitizeFloat(Health);
+
+	GEngine->AddOnScreenDebugMessage(-1, 4.5f, FColor::Red, *StrHealthAmount);
+	if (DamageAmount <= 20) {
+		PlayAnimMontage(HitReactMontage, 1.0f, FName("HitHeadMinorRight"));
+	}
+	else {
+		PlayAnimMontage(HitReactMontage, 1.0f, FName("HitRibRight"));
+	}
+	if (Health <= 0) {
+		bAlive = false;
+		int RandomDeadIndex = FMath::RandRange(1, 4);
+		FString MontageSection = "dead_" + FString::FromInt(RandomDeadIndex);
+		PlayAnimMontage(DeadMontage, 1.0f, FName(MontageSection));
+
+	}
 
 	return 0.0f;
 }
