@@ -32,6 +32,16 @@ AEnemyPuncher::AEnemyPuncher()
 		DeadMontage = DeadMtgObj.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<USoundWave> DeadGronObj(TEXT("SoundWave'/Game/Audios/male-groan-1.male-groan-1'"));
+	if (DeadGronObj.Succeeded()) {
+		DeadGroan = DeadGronObj.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> DeadFallOnDirtObj(TEXT("SoundWave'/Game/Audios/impact-body-fall-on-dirt-1.impact-body-fall-on-dirt-1'"));
+	if (DeadFallOnDirtObj.Succeeded()) {
+		DeadFallOnDirt = DeadFallOnDirtObj.Object;
+	}
+
 }
 
 // Called when the game starts or when spawned
@@ -69,6 +79,8 @@ void AEnemyPuncher::Tick(float DeltaTime)
 		//GetMesh()->SetSimulatePhysics(true);
 		//GetMesh()->WakeAllRigidBodies();
 		//GetMesh()->bBlendPhysics = true;
+
+		UGameplayStatics::PlaySoundAtLocation(this, DeadFallOnDirt, this->GetActorLocation(), 1.0f);
 
 		GetOwner()->Destroy();
 
@@ -123,7 +135,7 @@ float AEnemyPuncher::TakeDamage(float DamageAmount, struct FDamageEvent const& D
 		int RandomDeadIndex = FMath::RandRange(1, 4);
 		FString MontageSection = "dead_" + FString::FromInt(RandomDeadIndex);
 		PlayAnimMontage(DeadMontage, 1.0f, FName(MontageSection));
-
+		UGameplayStatics::PlaySoundAtLocation(this, DeadGroan, this->GetActorLocation(), 1.0f);
 	}
 
 	return 0.0f;

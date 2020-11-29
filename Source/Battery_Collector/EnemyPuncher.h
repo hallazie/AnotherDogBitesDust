@@ -4,6 +4,7 @@
 
 #include <string>
 #include "CoreMinimal.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -39,6 +40,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		float Health;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class USoundWave* DeadGroan;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class USoundWave* DeadFallOnDirt;
 
 	void BehaviourTreePatrol();
 

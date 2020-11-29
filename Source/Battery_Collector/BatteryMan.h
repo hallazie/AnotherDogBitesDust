@@ -51,9 +51,6 @@ public:
 	int ComboLoop;
 	int DanceType;
 
-	float LeftFistDamage;
-	float RightFistDamage;
-
 	class UAnimMontage* DanceMontage;
 
 	// String movingStatus; // run / sprint / idle
@@ -64,7 +61,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character Movement")
 		float SprintMultiplier;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float Power;
 
 	UPROPERTY(EditAnywhere)
@@ -75,6 +72,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		float Power_Threshold;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		float LeftFistDamage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		float RightFistDamage;
 
 	//UPROPERTY(VisibleAnywhere, Category="Animation")
 	//	class UAnimSequence* MeleeFistAttack; 
@@ -109,8 +112,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class USoundWave* FootStepConcretSoundWave;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		TArray<AActor*> HitActorArrayCache;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//	TArray<AActor*> HitActorArrayCache;
 
 	UFUNCTION()
 		void OnBeginOverlap(

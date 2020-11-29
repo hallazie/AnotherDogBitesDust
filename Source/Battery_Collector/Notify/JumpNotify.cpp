@@ -3,8 +3,6 @@
 
 #include "JumpNotify.h"
 
-#include "../BatteryMan.h"
-#include "Engine.h"
 
 void UJumpNotify::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration) {
 	if (MeshComp != NULL && MeshComp->GetOwner() != NULL) {

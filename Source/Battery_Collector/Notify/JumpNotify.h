@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
+#include "Engine.h"
+
+#include "../BatteryMan.h"
+
 #include "JumpNotify.generated.h"
 
 /**

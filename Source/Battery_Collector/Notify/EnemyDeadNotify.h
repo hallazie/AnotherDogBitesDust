@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
+#include "Engine.h"
+
 #include "EnemyDeadNotify.generated.h"
 
 /**
@@ -13,5 +15,10 @@ UCLASS()
 class BATTERY_COLLECTOR_API UEnemyDeadNotify : public UAnimNotifyState
 {
 	GENERATED_BODY()
+
+public:
+
+	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration) override;
+	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 	
 };
