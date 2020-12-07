@@ -24,4 +24,5 @@ void UAttackStartNotify::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequen
 			Player->AttackStop();
 		}
 	}
+	
 }
